@@ -40,7 +40,7 @@ library(dplyr)
             
             df$date <- as.Date(strptime(df$date, "%Y-%m-%d"))
 ```
-
+  
 
 ## What is mean total number of steps taken per day?
 
