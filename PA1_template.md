@@ -1,16 +1,28 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
 
-```{r echo=TRUE}
+
+```r
 library(ggplot2)      
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+## 
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
       ## Set data directory, source file name and destination file name      
             ddir  <- "./data"
             sfile <- "activity.zip"
@@ -31,7 +43,8 @@ library(dplyr)
 
 
 ## What is mean total number of steps taken per day?
-```{r echo=TRUE}
+
+```r
       ## Calculating summary 
             df_res <- df %>% group_by(date) %>% summarize(total_steps=sum(steps, na.rm=TRUE))
                   
@@ -41,18 +54,22 @@ library(dplyr)
                   labs(title="Histogram of the total numbers of steps taken per day.") +
                   labs(y="Frequency", x="Total steps per day")                  
             print(g1)
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
+
+```r
             mean_of_total_steps   <- mean(df_res$total_steps, na.rm=TRUE)
             median_of_total_steps <- median(df_res$total_steps, na.rm=TRUE)
-
 ```
   
-Mean of the total number of steps taken per day equals: **`r format(round(mean_of_total_steps,digits=2), nsmall=2)`**  
-Median of the total number of steps taken per day equals: **`r format(round(median_of_total_steps,digits=2), nsmall=2)`**  
+Mean of the total number of steps taken per day equals: **9354.23**  
+Median of the total number of steps taken per day equals: **10395.00**  
 
 
 ## What is the average daily activity pattern?
-```{r echo=TRUE}
+
+```r
       ## Calculation of average number of steps per interval
             df_res <- df %>% group_by(interval) %>% summarize(avg_steps=mean(steps, na.rm=TRUE))
       
@@ -62,27 +79,32 @@ Median of the total number of steps taken per day equals: **`r format(round(medi
                   labs(title="Average numbers of steps taken per interval across all days.") +
                   labs(y="Average number of steps", x="Interval")
             print(g2)
-      
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
+```r
       ## Find interval with the maximum average number of steps            
             int_with_max_steps <- df_res[df_res$avg_steps==max(df_res$avg_steps),]
-
 ```
    
     
-According to daily activity pattern maximum average number of steps=**`r format(round(int_with_max_steps[,2], digits=2), nsmall=2)`** occurs at interval **`r int_with_max_steps[,1]`**.  
+According to daily activity pattern maximum average number of steps=**206.17** occurs at interval **835**.  
 
 ## Imputing missing values   
 
-```{r echo=TRUE}
+
+```r
       ## Calculating number of missing values
             total_na <- sum(is.na(df$steps))
 ```
     
-Total number of missing values equals: **`r total_na`**   
+Total number of missing values equals: **2304**   
 To avoid influence of missing values to analysis I replace them with **average number of steps in corresponding interval**. Following code makes these replacement and draw histogram on updated data.     
    
 
-```{r echo=TRUE}
+
+```r
       ## Imputed data
             df_imp <-   merge(df, df_res, by="interval") %>% 
                         mutate(steps_imp=ifelse(is.na(steps),avg_steps, steps))
@@ -98,24 +120,28 @@ To avoid influence of missing values to analysis I replace them with **average n
             print(g3)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
+
 Recalculation of mean and median is made as well.   
 
-```{r echo=TRUE}
+
+```r
       ## Recalculating mean and median on dataframe with refilled NAs
             mean_of_total_steps_imp <- mean(df_res_imp$total_steps, na.rm=TRUE)
             median_of_total_steps_imp <- median(df_res_imp$total_steps, na.rm=TRUE)
 ```
    
-Recalculated mean of the total number of steps taken per day is changed from **`r format(round(mean_of_total_steps,digits=2),nsmall=2)`** to **`r format(round(mean_of_total_steps_imp,digits=2), nsmall=2)`**  
-Recalculated median is changed from **`r format(round(median_of_total_steps,digits=2),nsmall=2)`** to **`r format(round(median_of_total_steps_imp,digits=2),nsmall=2)`**  
+Recalculated mean of the total number of steps taken per day is changed from **9354.23** to **10766.19**  
+Recalculated median is changed from **10395.00** to **10766.19**  
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r echo=TRUE}
+
+```r
       ## Add new variable days that takes "weekends" or "weekdays"     
             df_res <-   df_imp %>% 
-                        mutate(days=ifelse(weekdays(date, abbreviate=TRUE)=="Ñá" | 
-                              weekdays(date, abbreviate=TRUE)=="Âñ","weekends","weekdays")) %>%
+                        mutate(days=ifelse(weekdays(date, abbreviate=TRUE)=="Ð¡Ð±" | 
+                              weekdays(date, abbreviate=TRUE)=="Ð’Ñ","weekends","weekdays")) %>%
                         group_by(interval, days) %>% 
                         summarize(avg_steps_imp=mean(steps_imp))
 
@@ -126,5 +152,6 @@ Recalculated median is changed from **`r format(round(median_of_total_steps,digi
                   labs(title="Average numbers of steps per interval per weekends and weekdays.") +
                   labs(y="Average number of steps", x="Interval")  
             print(g4)
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
